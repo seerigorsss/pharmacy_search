@@ -59,6 +59,7 @@ search_params = {
     "type": "biz"
 }
 
+# Работа с json-объектом полученного запроса для объекта аптеки
 response = requests.get(search_api_server, params=search_params)
 if response:
     json_response = response.json()
@@ -72,6 +73,10 @@ if response:
     org_point = "{0},{1}".format(point[0], point[1])
     delta = "0.005"
 
+    cords_1 = (float(toponym_coodrinates[0]), float(toponym_coodrinates[1]))
+    cords_2 = (float(point[0]), float(point[1]))
+    length = lonlat_distance(cords_1, cords_2)
+
     map_params = {
         "l": "map",
         "pt": f'{org_point},pm2bl~{address_ll},pm2al',
@@ -79,11 +84,14 @@ if response:
 
     map_api_server = "http://static-maps.yandex.ru/1.x/"
     response = requests.get(map_api_server, params=map_params)
-    print(f'\t----Название: {org_name}\n'
-          f'\t----Адрес: {org_address}\n'
-          f'\t----Время работы: {org_work_time}')
+    # Отображение контента полученного запроса
     Image.open(BytesIO(
         response.content)).show()
+    # Вывод сниппета с нужной информацией
+    print(f'\t----Название: {org_name}\n'
+          f'\t----Адрес: {org_address}\n'
+          f'\t----Время работы: {org_work_time}\n'
+          f'\t----Расстояние до объекта: {length:.0f} метров')
 else:
     print("Ошибка выполнения запроса:")
     print(response.url)
